@@ -1,47 +1,22 @@
 const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
+const express = require('express');
 
+// Bot token
 const token = "8401584812:AAFPZ2eB3l_e_86LjuUxbGBjgon5nCNWRb0";
 const bot = new TelegramBot(token, { polling: true });
 
 let botActive = true;
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+// Admin ID (Admin'in ID'sini buraya koyun)
+const adminId = 7357524930; // Admin ID
 
-const commands = {
-  "/on": async (msg) => {
-    botActive = true;
-    await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "sohbet başarılıyla başlatıldı");
-  },
-  "/off": async (msg) => {
-    botActive = false;
-    await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "hoşça kal");
-  },
-  "/ban": async (msg) => {
-    await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "banlandı");
-  },
-  "/sustur": async (msg) => {
-    await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "tamam susturdum");
-  },
-  "/öv": async (msg) => {
-    await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "seninle konuşmak komutlarımın en iyi özelliğiydi");
-  },
-  "/eğlendir": async (msg) => {
-    await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "bir gün herkes senin gibi eğlenceli olur mu?");
-  },
-};
-
+// Sohbet komutları
 const sohbetKomutlari = {
   "kanka": () => "bot olmasaydım kanka olurduk",
   "belinay kimi seviyor": () => "o sadece beni sever",
+  "bot": () => "haha en azından senin gibi gereksiz duygularım yok",
+  "ne yapıyorsun": () => "bi şey yapıyorum, sana bakıyorum",
   "bot": () => "haha senin gibi aşk acısı çekmiyorum en azından",
   "sus": () => "susmıycam",
   "ne yapıyorsun": () => "bi şey yapıyorum, sana bakıyorum",
@@ -292,8 +267,78 @@ const sohbetKomutlari = {
   "dengim değilsin": () => "denk olmak için benimle aynı seviyede olmalıydın",
   "firewall": () => "senin kalbin gibi, kimse geçemez",  
   "sahip çık": () => "sahipsiz kopek"
+  };
+
+// Bot komutları
+const commands = {
+  "/on": async (msg) => {
+    botActive = true;
+    await typingEffect(msg);
+    bot.sendMessage(msg.chat.id, "sohbet başarılıyla başlatıldı");
+  },
+  "/off": async (msg) => {
+    botActive = false;
+    await typingEffect(msg);
+    bot.sendMessage(msg.chat.id, "hoşça kal");
+  },
+  "/ban": async (msg) => {
+    await typingEffect(msg);
+    bot.sendMessage(msg.chat.id, "banlandı");
+  },
+  "/sustur": async (msg) => {
+    await typingEffect(msg);
+    bot.sendMessage(msg.chat.id, "tamam susturdum");
+  },
+  "/öv": async (msg) => {
+    await typingEffect(msg);
+    bot.sendMessage(msg.chat.id, "seninle konuşmak komutlarımın en iyi özelliğiydi");
+  },
+  "/eğlendir": async (msg) => {
+    await typingEffect(msg);
+    bot.sendMessage(msg.chat.id, "bir gün herkes senin gibi eğlenceli olur mu?");
+  },
+  "/adminpanel": async (msg) => {
+    if (msg.from.id === adminId) {
+      bot.sendMessage(msg.chat.id, "Admin paneline hoş geldiniz.");
+    } else {
+      bot.sendMessage(msg.chat.id, "Bu komut sadece admin için geçerli.");
+    }
+  },
 };
 
+// Gecikmeli yazma efekti
+async function typingEffect(msg) {
+  await bot.sendChatAction(msg.chat.id, "typing");
+  await delay(1500);
+}
+
+// Gecikme fonksiyonu
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Bot komutlarını çalıştırma
+bot.onText(/\/(.+)/, async (msg, match) => {
+  const command = match[1].toLowerCase();
+  if (commands[command]) {
+    await commands[command](msg);
+  }
+});
+
+// Sohbet komutlarını çalıştırma
+bot.on("message", async (msg) => {
+  if (!botActive) return;
+  if (msg.text) { 
+    const text = msg.text.toLowerCase();
+    for (const key in sohbetKomutlari) {
+      if (text.includes(key)) {
+        await typingEffect(msg);
+        bot.sendMessage(msg.chat.id, sohbetKomutlari[key]());
+        break;
+      }
+    }
+  }
+});
 
 // HTTP isteği yapacak bir örnek fonksiyon (axios kullanarak)
 async function fetchExampleData() {
@@ -305,32 +350,7 @@ async function fetchExampleData() {
   }
 }
 
-async function typingEffect(msg) {
-  await bot.sendChatAction(msg.chat.id, "typing");
-  await delay(1500);
-}
-
-bot.onText(/\/.+/, async (msg) => {
-  if (!botActive && msg.text !== "/on") return;
-  const commandFunc = commands[msg.text];
-  if (commandFunc) await commandFunc(msg);
-});
-
-bot.on("message", async (msg) => {
-  if (!botActive) return;
-  if (msg.text) {  // Burada mesajın text özelliği olup olmadığını kontrol ediyoruz
-    const text = msg.text.toLowerCase();
-    for (const key in sohbetKomutlari) {
-      if (text.includes(key)) {
-        await typingEffect(msg);
-        bot.sendMessage(msg.chat.id, sohbetKomutlari[key]());
-        break;
-      }
-    }
-  } else {
-    console.log("Mesaj text özelliği yok:", msg);
-  }
-const express = require('express');
+// Web sunucu ayarları
 const app = express();
 const PORT = process.env.PORT || 3000;
 
