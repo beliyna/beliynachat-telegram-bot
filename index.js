@@ -6,7 +6,7 @@ const express = require('express');
 const token = "8401584812:AAFPZ2eB3l_e_86LjuUxbGBjgon5nCNWRb0";
 const bot = new TelegramBot(token, { polling: true });
 
-let botActive = true;
+let botActive = false; // Başlangıçta bot kapalı
 
 // Admin ID (Admin'in ID'sini buraya koyun)
 const adminId = 7357524930; // Admin ID
@@ -15,8 +15,6 @@ const adminId = 7357524930; // Admin ID
 const sohbetKomutlari = {
   "kanka": () => "bot olmasaydım kanka olurduk",
   "belinay kimi seviyor": () => "o sadece beni sever",
-  "bot": () => "haha en azından senin gibi gereksiz duygularım yok",
-  "ne yapıyorsun": () => "bi şey yapıyorum, sana bakıyorum",
   "bot": () => "haha senin gibi aşk acısı çekmiyorum en azından",
   "sus": () => "susmıycam",
   "ne yapıyorsun": () => "bi şey yapıyorum, sana bakıyorum",
@@ -265,37 +263,40 @@ const sohbetKomutlari = {
   "kes lan": () => "ağzına tükürdüğüm",
   "konuşma": () => "komik mi sanıyorsun kendini sen",
   "dengim değilsin": () => "denk olmak için benimle aynı seviyede olmalıydın",
-  "firewall": () => "senin kalbin gibi, kimse geçemez",  
+  "firewall": () => "senin kalbin gibi, kimse geçemez",
+  "matrix": () => (Math.random() < 0.5 ? "Beliyna's first love" : "Beliyna's last love"),
+  "arı": () => (Math.random() < 0.5 ? "the only owner of my heart" : "jewel of my heart"),
+  "ı love you": () => "apple of my heart", 
   "sahip çık": () => "sahipsiz kopek"
-  };
+};
 
 // Bot komutları
 const commands = {
   "/on": async (msg) => {
-    botActive = true;
+    botActive = true; // Botu aktif hale getir
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "sohbet başarılıyla başlatıldı");
+    bot.sendMessage(msg.chat.id, "Sohbet başarıyla başlatıldı.");
   },
   "/off": async (msg) => {
-    botActive = false;
+    botActive = false; // Botu kapalı hale getir
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "hoşça kal");
+    bot.sendMessage(msg.chat.id, "Sohbet kapatıldı. Hoşça kal.");
   },
   "/ban": async (msg) => {
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "banlandı");
+    bot.sendMessage(msg.chat.id, "Banlandı.");
   },
   "/sustur": async (msg) => {
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "tamam susturdum");
+    bot.sendMessage(msg.chat.id, "Tamam susturdum.");
   },
   "/öv": async (msg) => {
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "seninle konuşmak komutlarımın en iyi özelliğiydi");
+    bot.sendMessage(msg.chat.id, "Seninle konuşmak komutlarımın en iyi özelliğiydi.");
   },
   "/eğlendir": async (msg) => {
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "bir gün herkes senin gibi eğlenceli olur mu?");
+    bot.sendMessage(msg.chat.id, "Bir gün herkes senin gibi eğlenceli olur mu?");
   },
   "/adminpanel": async (msg) => {
     if (msg.from.id === adminId) {
@@ -309,7 +310,7 @@ const commands = {
 // Gecikmeli yazma efekti
 async function typingEffect(msg) {
   await bot.sendChatAction(msg.chat.id, "typing");
-  await delay(1500);
+  await delay(1500); // 1.5 saniye bekle
 }
 
 // Gecikme fonksiyonu
@@ -321,19 +322,19 @@ function delay(ms) {
 bot.onText(/\/(.+)/, async (msg, match) => {
   const command = match[1].toLowerCase();
   if (commands[command]) {
-    await commands[command](msg);
+    await commands[command](msg); // Komut varsa çalıştır
   }
 });
 
 // Sohbet komutlarını çalıştırma
 bot.on("message", async (msg) => {
-  if (!botActive) return;
+  if (!botActive) return; // Bot aktif değilse cevap verme
   if (msg.text) { 
     const text = msg.text.toLowerCase();
     for (const key in sohbetKomutlari) {
       if (text.includes(key)) {
         await typingEffect(msg);
-        bot.sendMessage(msg.chat.id, sohbetKomutlari[key]());
+        bot.sendMessage(msg.chat.id, sohbetKomutlari[key]()); // Sohbet komutuna yanıt gönder
         break;
       }
     }
