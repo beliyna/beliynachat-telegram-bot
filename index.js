@@ -267,49 +267,47 @@ const sohbetKomutlari = {
   "sahip çık": () => "sahipsiz kopek"
 };
 
-// Sistem komutları
+// Bot komutları
 const commands = {
   "/on": async (msg) => {
     botActive = true;
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "sohbet açıldı.");
+    bot.sendMessage(msg.chat.id, "Sohbet başarıyla başlatıldı.");
   },
   "/off": async (msg) => {
     botActive = false;
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "sohbet kapatıldı.");
+    bot.sendMessage(msg.chat.id, "Sohbet kapatıldı. Hoşça kal.");
   },
   "/ban": async (msg) => {
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "banladım.");
+    bot.sendMessage(msg.chat.id, "Banlandı.");
   },
   "/sustur": async (msg) => {
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "sustum.");
+    bot.sendMessage(msg.chat.id, "Tamam susturdum.");
   },
   "/öv": async (msg) => {
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "senin gibi kullanıcı zor bulunur.");
+    bot.sendMessage(msg.chat.id, "Seninle konuşmak komutlarımın en iyi özelliğiydi.");
   },
   "/eğlendir": async (msg) => {
     await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "şaka yapmayı bilmiyorum ama gülümse :)");
+    bot.sendMessage(msg.chat.id, "Bir gün herkes senin gibi eğlenceli olur mu?");
   },
   "/adminpanel": async (msg) => {
     if (msg.from.id === adminId) {
-      await typingEffect(msg);
-      bot.sendMessage(msg.chat.id, "admin paneline hoş geldin.");
+      bot.sendMessage(msg.chat.id, "Admin paneline hoş geldiniz.");
     } else {
-      await typingEffect(msg);
-      bot.sendMessage(msg.chat.id, "bu komut sadece admin için.");
+      bot.sendMessage(msg.chat.id, "Bu komut sadece admin için geçerli.");
     }
   },
 };
 
-// Typing efekti
+// Yazma efekti
 async function typingEffect(msg) {
   await bot.sendChatAction(msg.chat.id, "typing");
-  await delay(1000);
+  await delay(1500);
 }
 
 // Gecikme fonksiyonu
@@ -317,20 +315,19 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Bot komutlarını dinle
-bot.on("message", async (msg) => {
-  const text = msg.text?.toLowerCase();
-  if (!text) return;
-
-  if (commands[text]) {
-    // Komut varsa çalıştır
-    await commands[text](msg);
-    return;
+// Komutları çalıştır
+bot.onText(/^\/(\w+)/, async (msg, match) => {
+  const command = "/" + match[1].toLowerCase();
+  if (commands[command]) {
+    await commands[command](msg);
   }
+});
 
-  // Sadece bot aktifse sohbet komutlarını kontrol et
-  if (!botActive) return;
+// Mesajlara yanıt (komut değilse sohbet komutlarına bak)
+bot.on("message", async (msg) => {
+  if (!botActive || !msg.text || msg.text.startsWith("/")) return;
 
+  const text = msg.text.toLowerCase();
   for (const key in sohbetKomutlari) {
     if (text.includes(key)) {
       await typingEffect(msg);
@@ -340,7 +337,7 @@ bot.on("message", async (msg) => {
   }
 });
 
-// Örnek HTTP isteği (kullanmıyorsan silebilirsin)
+// HTTP örnek fonksiyon (isteğe bağlı)
 async function fetchExampleData() {
   try {
     const response = await axios.get("https://api.example.com/data");
@@ -350,11 +347,11 @@ async function fetchExampleData() {
   }
 }
 
-// Web sunucusu (Render için)
+// Web sunucusu
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get("/", (req, res) => res.send("Bot aktif!"));
+app.get("/", (req, res) => res.send("Bot çalışıyor..."));
 app.listen(PORT, () => {
-  console.log(`Web sunucu çalışıyor: ${PORT}`);
+  console.log(`Web server aktif: ${PORT}`);
 });
