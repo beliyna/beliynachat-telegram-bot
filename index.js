@@ -278,15 +278,7 @@ const commands = {
     botActive = false;
     await typingEffect(msg);
     bot.sendMessage(msg.chat.id, "Sohbet kapatıldı. Hoşça kal.");
-  },
-  "/ban": async (msg) => {
-    await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "Banlandı.");
-  },
-  "/sustur": async (msg) => {
-    await typingEffect(msg);
-    bot.sendMessage(msg.chat.id, "Tamam susturdum.");
-  },
+   },
   "/öv": async (msg) => {
     await typingEffect(msg);
     bot.sendMessage(msg.chat.id, "Seninle konuşmak komutlarımın en iyi özelliğiydi.");
